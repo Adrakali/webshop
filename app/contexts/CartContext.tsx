@@ -1,61 +1,94 @@
 "use client";
 import { IProduct } from "@/interfaces";
-import React, { createRef, useRef } from "react";
+import React from "react";
 import { createContext } from "react";
 
 interface ICartContext {
-  cart: IProduct[];
-  setCart: React.Dispatch<React.SetStateAction<IProduct[]>>;
+  items: IProduct[];
   addToCart: (product: IProduct) => void;
   removeFromCart: (id: number) => void;
-  quantRef?: React.RefObject<HTMLInputElement>;
-  total: number;
-  setTotal: React.Dispatch<React.SetStateAction<number>>;
+  getQuantity: (id: number) => number;
+  getTotalQuantity: () => number;
+  getTotalCost: () => number;
+  decreaseQuantity: (id: number) => void;
+  increaseQuantity: (id: number) => void;
 }
 
 export const CartContext = createContext<ICartContext>({
-  cart: [],
-  setCart: () => {},
+  items: [],
   addToCart: () => {},
   removeFromCart: () => {},
-  quantRef: createRef<HTMLInputElement>(),
-  total: 0,
-  setTotal: () => {},
+  decreaseQuantity: () => {},
+  getQuantity: () => 0,
+  getTotalCost: () => 0,
+  increaseQuantity: () => {},
+  getTotalQuantity: () => 0,
 });
 
 function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = React.useState<IProduct[]>([]);
-  const [total, setTotal] = React.useState(0);
 
-  //TODO: Fix this. Resets the quantity to 1 when you adding different item to the cart.
+  const items = cart; // declare and initialize the 'items' variable with the current cart state
+
+  function getQuantity(id: number) {
+    return cart.find((item) => item.id === id)?.quantity || 0;
+  }
+
   function addToCart(product: IProduct) {
-    if (cart.find((item) => item.id === product.id)) {
-      const item = cart.find((item) => item.id === product.id);
-      if (item) {
-        const currentValue = quantRef.current?.value ?? "0";
-        quantRef.current!.value = String(Number(currentValue) + 1);
-      }
-    } else {
-      setCart([...cart, product]);
-    }
+    const quantity = getQuantity(product.id);
+    quantity === 0
+      ? setCart([...cart, { ...product, quantity: product.quantity ?? +1 }])
+      : setCart([...cart]);
   }
 
   function removeFromCart(id: number) {
     setCart(cart.filter((item) => item.id !== id));
   }
 
-  const quantRef = useRef<HTMLInputElement>(null);
+  function decreaseQuantity(id: number) {
+    const quantity = getQuantity(id);
+    quantity === 1
+      ? removeFromCart(id)
+      : setCart(
+          cart.map((item) =>
+            item.id === id
+              ? { ...item, quantity: item.quantity ? item.quantity - 1 : 1 }
+              : item
+          )
+        );
+  }
+
+  function increaseQuantity(id: number) {
+    setCart(
+      cart.map((item) =>
+        item.id === id
+          ? { ...item, quantity: item.quantity ? item.quantity + 1 : 1 }
+          : item
+      )
+    );
+  }
+
+  function getTotalCost() {
+    return +cart
+      .reduce((acc, item) => acc + item.price * (item.quantity || 1), 0)
+      .toFixed(2);
+  }
+
+  function getTotalQuantity() {
+    return +cart.reduce((acc, item) => acc + (item.quantity ?? 0), 0);
+  }
 
   return (
     <CartContext.Provider
       value={{
-        cart,
-        setCart,
+        items,
         addToCart,
+        getQuantity,
         removeFromCart,
-        quantRef,
-        total,
-        setTotal,
+        decreaseQuantity,
+        increaseQuantity,
+        getTotalCost,
+        getTotalQuantity,
       }}>
       {children}
     </CartContext.Provider>

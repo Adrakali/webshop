@@ -9,7 +9,7 @@ interface Props {
 }
 
 function Cart({ isHidden, setIsHidden }: Props) {
-  const { cart, total } = useContext(CartContext);
+  const { items, getTotalCost, getTotalQuantity } = useContext(CartContext);
 
   return (
     <aside
@@ -21,17 +21,26 @@ function Cart({ isHidden, setIsHidden }: Props) {
         onClick={() => setIsHidden(!isHidden)}>
         <HiX />
       </button>
-      {cart.map((item) => (
+      <h2 className="mb-8">
+        {getTotalQuantity()}
+        {getTotalQuantity() === 1 ? " item" : " items"} in your cart
+      </h2>
+      {items.map((item) => (
         <CartItem key={item.id} product={item} />
       ))}
-      {
-        <div className="mt-16">
-          <p className="text-sm">Total:</p>
-          <p className="font-bold">
-            $ {cart.reduce((acc, item) => acc + item.price, 0)}
-          </p>
+      {items.length > 0 ? (
+        <div>
+          <div className="mt-16 flex items-baseline justify-between gap-4">
+            <p className="text-sm">Total cost:</p>
+            <p className="font-bold">$ {getTotalCost()}</p>
+          </div>
+          <button className="mt-8 rounded-md bg-black px-8 py-4 font-bold text-white">
+            Checkout
+          </button>
         </div>
-      }
+      ) : (
+        <p>Your cart is empty</p>
+      )}
     </aside>
   );
 }

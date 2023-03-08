@@ -10,44 +10,34 @@ interface Props {
 }
 
 function CartItem({ product }: Props) {
-  const { removeFromCart, total, setTotal, quantRef } = useContext(CartContext);
-  const [quant, setQuant] = React.useState(1);
-  const itemSpecificTotal = product.price * quant;
-
-  function handleAdd() {
-    setQuant((prev) => prev + 1);
-    setTotal((prev) => prev + product.price);
-  }
-
-  function handleRemove() {
-    if (quant === 1) return;
-    setQuant((prev) => prev - 1);
-    setTotal((prev) => prev - product.price);
-  }
+  const { removeFromCart, decreaseQuantity, increaseQuantity, getQuantity } =
+    useContext(CartContext);
 
   return (
     <div className="mb-4 flex items-center gap-4">
       <div className="flex">
         <button
           className="bg-black p-2 text-white hover:bg-gray-800"
-          onClick={handleRemove}>
+          onClick={() => decreaseQuantity(product.id)}>
           -
         </button>
         <input
           type="number"
           className="w-16 bg-gray-200 p-2 text-center"
-          value={quant}
-          ref={quantRef}
+          value={getQuantity(product.id) ?? 1}
+          readOnly
         />
         <button
           className="bg-black p-2 text-white hover:bg-gray-800"
-          onClick={handleAdd}>
+          onClick={() => increaseQuantity(product.id)}>
           +
         </button>
       </div>
       <div>
-        <h3 className="max-w-[15ch] truncate text-sm">{product.title}</h3>
-        <p>{itemSpecificTotal}</p>
+        <h3 className="max-w-[15ch] truncate text-sm">
+          {product.title}
+          {product.price}
+        </h3>
       </div>
       <div className="flex w-full justify-end">
         <button

@@ -10,7 +10,7 @@ import { CartContext } from "../contexts/CartContext";
 
 function Nav() {
   const [isHidden, setIsHidden] = useState(true);
-  const { cart } = useContext(CartContext);
+  const { items, getTotalQuantity } = useContext(CartContext);
 
   return (
     <header>
@@ -58,9 +58,9 @@ function Nav() {
               onClick={() => setIsHidden(!isHidden)}>
               <HiShoppingBag className="text-lg" />
               Varukorg
-              {cart.length > 0 && (
+              {items.length > 0 && (
                 <p className="absolute -top-4 -right-4 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 p-3 text-center text-xs font-bold text-white">
-                  {cart.length}
+                  {getTotalQuantity()}
                 </p>
               )}
             </li>

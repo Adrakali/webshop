@@ -10,7 +10,7 @@ interface Props {
 }
 
 function ProductCard({ product }: Props) {
-  const { cart, addToCart } = useContext(CartContext);
+  const { items, addToCart } = useContext(CartContext);
 
   function handleClick(product: IProduct) {
     addToCart(product);
@@ -29,7 +29,7 @@ function ProductCard({ product }: Props) {
       <div className="flex-grow">
         <h3 className="text-sm">{product.title}</h3>
         <p className="my-2 text-xs">{product.category}</p>
-        <p className="text-sm">{product.price} kr</p>
+        <p className="text-sm font-bold">$ {product.price}</p>
       </div>
       <button
         className="mt-4 flex w-full items-center justify-center gap-2 self-end rounded-md bg-black py-2 text-xs font-bold text-white"
